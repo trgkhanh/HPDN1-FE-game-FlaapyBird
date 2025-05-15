@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.014667f2.css",
+    "main.js": "/static/js/main.82fd2d88.js",
+    "static/media/sprite.png": "/static/media/sprite.584d010cd0a7cc646edb.png",
+    "static/media/board.png": "/static/media/board.a33f55146732f4d81c3f.png",
+    "static/media/MissionIcon.png": "/static/media/MissionIcon.ccbde0820982cfc58967.png",
+    "static/media/flappybird.png": "/static/media/flappybird.aa93937d8a2625cdf285.png",
+    "index.html": "/index.html",
+    "main.014667f2.css.map": "/static/css/main.014667f2.css.map",
+    "main.82fd2d88.js.map": "/static/js/main.82fd2d88.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.014667f2.css",
+    "static/js/main.82fd2d88.js"
+  ]
+}
