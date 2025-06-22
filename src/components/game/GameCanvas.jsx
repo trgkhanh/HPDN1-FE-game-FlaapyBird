@@ -10,6 +10,7 @@ import pipeBottomImgSrc from "../../assets/images/pipe.png";
 
 const GameCanvas = () => {
   const canvasRef = useRef(null);
+  const telegram_Id = 1; // Thay bằng id thực tế khi tích hợp
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,7 +50,8 @@ const GameCanvas = () => {
         ctx.drawImage(messageImg, canvas.width / 2 - messageImg.width / 2, 200);
       },
     };
-    // manf end
+
+    // màn end
     const end = {
       draw: function () {
         ctx.beginPath();
@@ -91,7 +93,7 @@ const GameCanvas = () => {
       sH: 625,
       cX: 0,
       cY: 0,
-      cW: 226, // hoặc bất kỳ kích thước canvas nào bạn muốn
+      cW: 226,
       cH: 625,
 
       draw: function () {
@@ -141,7 +143,7 @@ const GameCanvas = () => {
         this.sH = 143;
         this.cW = 214;
         this.cH = 143;
-        this.dx = -2; // nen dat di chuyen
+        this.dx = -2;
       }
       draw() {
         ctx.beginPath();
@@ -173,7 +175,6 @@ const GameCanvas = () => {
         ground.cX += ground.dx;
       });
 
-      // thay doi nen dat neeus het
       if (arrGround[0].cX <= -336) {
         arrGround.splice(0, 1);
         let ground = new Ground(arrGround[2].cX + 215, 625);
@@ -181,12 +182,12 @@ const GameCanvas = () => {
       }
     }
 
-    // Random ong
+    // Random ống
     function random(min, max) {
       return Math.ceil(Math.random() * (max - min) + min);
     }
 
-    // duong ong
+    // Ống
     class Pipes {
       constructor(cX, cY, space) {
         this.cX = cX;
@@ -214,7 +215,8 @@ const GameCanvas = () => {
 
     function newPipes() {
       for (let i = 0; i < 4; i++) {
-        let pipe = new Pipes(random(530, 600) * i, random(-660, -300), 200);
+        let pipe = new Pipes(530 + i * 350, random(-660, -300), 200);
+        pipe.scored = false;
         arrPipes.push(pipe);
       }
     }
@@ -228,7 +230,6 @@ const GameCanvas = () => {
         pipe.cX += pipe.dx;
       });
 
-      // taoj ong moi
       if (arrPipes[0].cX <= -82) {
         arrPipes.splice(0, 1);
         let pipe = new Pipes(
@@ -236,11 +237,12 @@ const GameCanvas = () => {
           random(-660, -300),
           random(200, 150)
         );
+        pipe.scored = false;
         arrPipes.push(pipe);
       }
     }
 
-    // diem , so
+    // Điểm, số
     const arrNumber = [
       { name: 0, sX: 1013, sY: 181, sW: 52, sH: 80, cW: 52, cH: 80 },
       { name: 1, sX: 1080, sY: 181, sW: 32, sH: 80, cW: 32, cH: 80 },
@@ -364,16 +366,27 @@ const GameCanvas = () => {
       }
     }
     let scoreSent = false;
-
     let score = new Score(0, 340, 391);
     let maxScore = new Score(0, 340, 443);
+
+    function handleGameOver() {
+      if (!scoreSent) {
+        scoreSent = true;
+        const finalScore = score.value;
+        sendScore(finalScore);
+        updateAllUserMissions();
+        game = "end";
+        console.log("game end-bird va cham nen dat");
+      }
+    }
+
     // class Bird
     class Bird {
       constructor(cX, cY) {
         this.cX = cX;
         this.cY = cY;
-        this.cW = 51; // chiều rộng ảnh riêng
-        this.cH = 36; // chiều cao ảnh riêng
+        this.cW = 51;
+        this.cH = 36;
         this.i = 0;
         this.v = 0;
         this.a = 0.1;
@@ -383,8 +396,6 @@ const GameCanvas = () => {
 
       draw() {
         ctx.beginPath();
-
-        // thay đổi frame theo game state
         if (game === "start") {
           if (frame % 35 === 0) {
             this.i = (this.i + 1) % 3;
@@ -400,40 +411,41 @@ const GameCanvas = () => {
       }
 
       update() {
-        if (game == "play" || game == "end") {
+        if (game == "play") {
           this.v += this.a;
           this.cY += this.v;
-          // va tram nen dat
+          // va chạm nền đất
           if (this.cY + this.cH + this.v >= 625) {
-            game = "end";
             this.v = 0;
             this.cY = 625;
-            if (!scoreSent) {
-              sendScore(score.value);
-              scoreSent = true;
-            }
+            handleGameOver();
           }
-          // va cham duong ong
+          // va chạm ống
           if (
-            bird.cX + bird.cW > arrPipes[0].cX &&
-            bird.cX < arrPipes[0].cX + arrPipes[0].cW &&
-            (bird.cY < arrPipes[0].cY + arrPipes[0].cH ||
-              bird.cY + bird.cH >
+            this.cX + this.cW > arrPipes[0].cX &&
+            this.cX < arrPipes[0].cX + arrPipes[0].cW &&
+            (this.cY < arrPipes[0].cY + arrPipes[0].cH ||
+              this.cY + this.cH >
                 arrPipes[0].cY + arrPipes[0].cH + arrPipes[0].space)
           ) {
-            game = "end";
             if (!scoreSent) {
-              sendScore(score.value);
               scoreSent = true;
+              const finalScore = score.value;
+              sendScore(finalScore);
+              updateAllUserMissions();
+              game = "end";
+              console.log("game end-bird va cham cot");
             }
           }
-          // an diem
+          // ăn điểm
           if (
-            bird.cX == arrPipes[0].cX + 82 ||
-            bird.cX == arrPipes[0].cX + 81
+            arrPipes[0].cX + arrPipes[0].cW < this.cX &&
+            !arrPipes[0].scored
           ) {
             score.value++;
             maxScore.value = Math.max(score.value, maxScore.value);
+            fetchHighScore();
+            arrPipes[0].scored = true; // Đánh dấu đã cộng điểm cho ống này
           }
         }
       }
@@ -447,11 +459,9 @@ const GameCanvas = () => {
           game = "play";
           break;
         case "play":
-          console.log("choi game");
           bird.v = -4;
           break;
         case "end":
-          console.log("end game");
           if (
             event.offsetX > canvas.width / 2 - 41.5 &&
             event.offsetX < canvas.width / 2 + 41.5 &&
@@ -466,7 +476,6 @@ const GameCanvas = () => {
             scoreSent = false;
             game = "start";
           }
-
           break;
       }
     });
@@ -491,6 +500,7 @@ const GameCanvas = () => {
         maxScore.drawSmall();
       }
     }
+
     function update() {
       if (game == "play") {
         updateArrPipe();
@@ -498,32 +508,93 @@ const GameCanvas = () => {
       }
       bird.update();
     }
-    // api post điểm
-    function sendScore(score) {
-      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
 
-      if (!telegramId) {
-        console.error("Không tìm thấy telegram_id từ Telegram WebApp");
+    // Gửi điểm lên backend
+    async function sendScore(score) {
+      if (!telegram_Id) {
+        console.error("Không tìm thấy telegram_id");
         return;
       }
 
-      fetch("http://localhost:3001/api/score", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          telegram_id: telegramId,
-          score: score,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Gửi điểm thành công:", data);
-        })
-        .catch((err) => {
-          console.error("Lỗi gửi điểm:", err);
+      try {
+        const response = await fetch("http://localhost:3001/scores/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            telegram_id: telegram_Id,
+            score: score,
+          }),
         });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Lỗi không xác định khi lưu điểm");
+        }
+
+        const data = await response.json();
+        console.log("Lưu điểm thành công:", data.message);
+      } catch (error) {
+        console.error("Lỗi khi gọi API lưu điểm:", error.message);
+      }
+    }
+
+    // Gọi cập nhật progress cho tất cả mission của user sau khi chơi xong
+    async function updateAllUserMissions() {
+      try {
+        // Lấy danh sách missionId của user từ backend
+        const res = await fetch(
+          `http://localhost:3001/user-missions/${telegram_Id}`
+        );
+        if (!res.ok) {
+          throw new Error("Không lấy được danh sách mission");
+        }
+        const missions = await res.json();
+
+        const missionIds = missions.map((m) => m.mission_id);
+        console.log("Danh sách mission:", missionIds);
+
+        // Gọi API cập nhật progress cho tất cả missionId
+        for (const missionId of missionIds) {
+          await fetch("http://localhost:3001/user-missions/update", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: telegram_Id,
+              mission_id: missionId,
+            }),
+          });
+          console.log(missionId);
+        }
+        console.log("Đã cập nhật progress cho các mission");
+      } catch (error) {
+        console.error("Lỗi khi cập nhật progress mission:", error.message);
+      }
+    }
+
+    // Hàm lấy high_score từ backend
+    async function fetchHighScore() {
+      if (!telegram_Id) {
+        console.error("Không tìm thấy telegram_id");
+        return;
+      }
+      try {
+        const response = await fetch(
+          `http://localhost:3001/users/${telegram_Id}`
+        );
+        if (!response.ok) {
+          throw new Error("Không lấy được high_score");
+        }
+        const data = await response.json();
+        if (data.high_score !== undefined) {
+          maxScore.value = data.high_score;
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy high_score:", error.message);
+      }
     }
 
     function animate() {

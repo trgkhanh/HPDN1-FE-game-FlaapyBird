@@ -18,7 +18,7 @@ const MissionList = ({ userId }) => {
       })
       .catch((err) => {
         setError(err.message);
-        setLoading(false);
+        setLoading(false)
       });
   }, [userId]);
 
@@ -34,7 +34,7 @@ const MissionList = ({ userId }) => {
           prevMissions.map((mission) =>
             mission.mission_id === missionId
               ? { ...mission, progress: newProgress }
-              : mission
+              : mission 
           )
         );
       })
@@ -67,7 +67,7 @@ const MissionList = ({ userId }) => {
 
   return (
     <div>
-      <h1>Mission List</h1>
+      <h1>Bảng nhiệm vụ</h1>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (
@@ -78,6 +78,7 @@ const MissionList = ({ userId }) => {
             <MissionItem
               key={mission.mission_id}
               mission={mission}
+              userId={userId}
               onUpdateProgress={handleUpdateProgress}
               onClaimReward={handleClaimReward}
             />

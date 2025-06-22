@@ -5,7 +5,7 @@ import MissionList from "../components/missions/MissionList.jsx";
 
 export default function MissionsBoardPage() {
   // const { user } = useTelegram(); // lấy telegram_id
-  const userId = 123;
+  const userId = 1;
   return (
     <div>
       <MissionList userId={userId} />
