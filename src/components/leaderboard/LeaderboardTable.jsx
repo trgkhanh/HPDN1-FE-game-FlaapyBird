@@ -31,7 +31,7 @@ const LeaderboardTable = () => {
   };
 
   if (loading) return <p className="loading">⏳ Đang tải bảng xếp hạng...</p>;
-  if (error) return <p className="error">{error}</p>; // Hiển thị thông báo lỗi
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div className="leaderboard-container">

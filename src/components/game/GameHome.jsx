@@ -1,14 +1,44 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import spriteSrc from "../../assets/images/sprite.png";
 import boardSrc from "../../assets/images/board.png";
 import startSrc from "../../assets/images/start.png";
 import flappybirdSrc from "../../assets/images/flappybird.png";
 import MissionIconSrc from "../../assets/images/MissionIcon.png";
+import avatarSrc from "../../assets/images/da621058a899abf368f96c11451788bf~tplv-tiktokx-cropcenter_1080_1080.jpeg"; // Thêm ảnh avatar của bạn vào assets/images
+import goldSrc from "../../assets/images/gold-icon.png"; // Thêm ảnh icon vàng nếu cần
+import { useUser } from "../../Contexts/userContext.jsx"; // Giả sử bạn có context để quản lý user
+
+// Hàm gọi API lấy user theo id
+async function getUserById(userId) {
+  try {
+    const response = await fetch(`http://localhost:3001/users/${userId}`);
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Không tìm thấy user");
+    }
+    const data = await response.json();
+    console.log("User data:1111111111", data);
+    return data;
+  } catch (error) {
+    console.error("Lỗi lấy user:", error.message);
+    throw error;
+  }
+}
 
 const GameHome = () => {
   const canvasRef = useRef(null);
   const navigate = useNavigate();
+  const { user } = useUser();
+  console.log("User context:", user);
+  const [userData, setUserData] = useState(null);
+  console.log("User data:2", userData);
+
+  useEffect(() => {
+    getUserById(user.telegram_id)
+      .then((data) => setUserData(data))
+      .catch((err) => console.error(err));
+  }, [user]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -32,6 +62,9 @@ const GameHome = () => {
     const missionIcon = new Image();
     missionIcon.src = MissionIconSrc;
 
+    const avatar = new Image();
+    avatar.src = user?.avatar || avatarSrc; // Sử dụng ảnh avatar từ user context hoặc ảnh mặc định
+
     const start = {
       draw: function () {
         ctx.beginPath();
@@ -44,7 +77,7 @@ const GameHome = () => {
           76
         );
         ctx.drawImage(board, canvas.width / 2 + 190, 650, 51, 50);
-        ctx.drawImage(missionIcon, canvas.width / 2 - 241, 650, 51, 50); // Adjusted position
+        ctx.drawImage(missionIcon, canvas.width / 2 - 241, 650, 51, 50);
       },
     };
 
@@ -132,11 +165,51 @@ const GameHome = () => {
       arrGround.forEach((ground) => ground.draw());
     }
 
+    // Vẽ thanh ngang trên cùng
+    function drawTopBar() {
+      // Thanh nền
+      ctx.save();
+      ctx.fillStyle = "#fff";
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(0, 0, canvas.width, 60);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // Avatar
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(35, 30, 24, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(avatar, 11, 6, 48, 48);
+      ctx.restore();
+
+      // Tên người chơi
+      ctx.font = "bold 18px Arial";
+      ctx.fillStyle = "#222";
+      ctx.textBaseline = "middle";
+      ctx.fillText(userData?.name || 1, 70, 30);
+
+      // Số vàng (icon vàng + số)
+      // Vẽ icon vàng (dùng emoji hoặc ảnh nếu có)
+      ctx.font = "20px Arial";
+      ctx.fillStyle = "#FFD700";
+      ctx.fillText("💰", canvas.width - 110, 30);
+
+      ctx.font = "bold 18px Arial";
+      ctx.fillStyle = "#222";
+      ctx.fillText(userData?.gold ?? 0, canvas.width - 80, 30);
+
+      // Icon đăng xuất (emoji 🚪)
+      ctx.font = "24px Arial";
+      ctx.fillText("🚪", canvas.width - 40, 30);
+    }
+
     function draw() {
       bg.draw();
-
       drawArrGround();
       start.draw();
+      drawTopBar();
     }
 
     function animate() {
@@ -146,7 +219,8 @@ const GameHome = () => {
     }
 
     sprites.onload = () => animate();
-    missionIcon.onload = () => animate(); // Ensure missionIcon is loaded before animating
+    missionIcon.onload = () => animate();
+    avatar.onload = () => animate();
 
     canvas.addEventListener("click", (event) => {
       const rect = canvas.getBoundingClientRect();
@@ -200,8 +274,25 @@ const GameHome = () => {
       ) {
         navigate("/missionboard");
       }
+
+      // Icon đăng xuất (tọa độ)
+      const logoutX = canvas.width - 55;
+      const logoutY = 10;
+      const logoutW = 40;
+      const logoutH = 40;
+
+      if (
+        x >= logoutX &&
+        x <= logoutX + logoutW &&
+        y >= logoutY &&
+        y <= logoutY + logoutH
+      ) {
+        // Xử lý đăng xuất: ví dụ xóa token, chuyển về login
+        // localStorage.removeItem("token");
+        navigate("/");
+      }
     });
-  }, [navigate]);
+  }, [navigate, userData]);
 
   return (
     <canvas

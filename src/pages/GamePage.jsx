@@ -8,7 +8,7 @@ function GamePage() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={() => navigate('/')} className="back-button">
+      <button onClick={() => navigate('/homepage')} className="back-button">
         ←
       </button>
       <GameCanvas />

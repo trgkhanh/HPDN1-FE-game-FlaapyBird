@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 async function registerUser(name, username, passwords) {
   try {
@@ -27,7 +27,7 @@ async function registerUser(name, username, passwords) {
     console.error("Lỗi đăng ký:", error.message);
     throw error;
   }
-};
+}
 // console.log("Đăng ký với:", username, password, fullName);
 
 const Register = () => {
@@ -36,13 +36,16 @@ const Register = () => {
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
 
-  const handleRegister =  async () => {
-
+  const handleRegister = async () => {
+    if (!username || !password || !fullName) {
+      alert("Vui lòng nhập đầy đủ thông tin!");
+      return;
+    }
     // Đăng ký tài khoản mới
     try {
       const data = await registerUser(fullName, username, password);
       alert("Đăng ký thành công! Tài khoản của bạn đã được tạo.");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       alert(`Đăng ký thất bại: ${error.message}`);
     }
@@ -51,7 +54,7 @@ const Register = () => {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        height: "750px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -68,7 +71,7 @@ const Register = () => {
         }}
       >
         <h2 style={{ textAlign: "center", marginBottom: "24px" }}>Đăng ký</h2>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "16px", textAlign: "left" }}>
           <label htmlFor="username">Tên đăng nhập:</label>
           <input
             type="text"
@@ -79,7 +82,7 @@ const Register = () => {
             style={{ width: "100%", padding: "8px", marginTop: "4px" }}
           />
         </div>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "16px", textAlign: "left" }}>
           <label htmlFor="password">Mật khẩu:</label>
           <input
             type="password"
@@ -90,7 +93,7 @@ const Register = () => {
             style={{ width: "100%", padding: "8px", marginTop: "4px" }}
           />
         </div>
-        <div style={{ marginBottom: "24px" }}>
+        <div style={{ marginBottom: "24px", textAlign: "left" }}>
           <label htmlFor="fullName">Họ và tên:</label>
           <input
             type="text"

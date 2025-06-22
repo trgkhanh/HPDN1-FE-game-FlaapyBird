@@ -43,18 +43,18 @@ const MissionList = ({ userId }) => {
       });
   };
 
-  const handleClaimReward = (missionId) => {
+  const handleClaimReward = (mission_id) => {
     axios
       .post("http://localhost:3001/user-missions/claim", {
-        userId,
-        missionId,
+        user_id,
+        mission_id,
       })
       .then((response) => {
-        const reward = response.data.reward;
+        const reward = response.data.reward_gold;
         alert(`You received ${reward} gold!`);
         setMissions((prevMissions) =>
           prevMissions.map((mission) =>
-            mission.mission_id === missionId
+            mission.mission_id === mission_id
               ? { ...mission, claimed: true }
               : mission
           )

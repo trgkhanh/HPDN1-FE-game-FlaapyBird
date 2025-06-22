@@ -7,10 +7,12 @@ import midFlapSrc from "../../assets/images/yellowbird-midflap.png";
 import upFlapSrc from "../../assets/images/yellowbird-upflap.png";
 import pipeTopImgSrc from "../../assets/images/pipe2.png";
 import pipeBottomImgSrc from "../../assets/images/pipe.png";
+import {useUser} from "../../Contexts/userContext.jsx"; // Giả sử bạn có context để quản lý user
 
 const GameCanvas = () => {
   const canvasRef = useRef(null);
-  const telegram_Id = 1; // Thay bằng id thực tế khi tích hợp
+  const {user} = useUser(); // Lấy user từ context
+  const telegram_Id = user.telegram_id; // Thay bằng id thực tế khi tích hợp
 
   useEffect(() => {
     const canvas = canvasRef.current;
